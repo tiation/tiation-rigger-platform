@@ -1,0 +1,351 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  emailVerified     DateTime?
+  username          String   @unique
+  firstName         String
+  lastName          String
+  phoneNumber       String?
+  avatar            String?
+  dateOfBirth       DateTime?
+  address           Json?
+  
+  // Authentication
+  passwordHash      String
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  emailVerificationToken String?
+  
+  // Profile
+  bio               String?
+  role              UserRole @default(WORKER)
+  status            UserStatus @default(ACTIVE)
+  
+  // Worker specific fields
+  certifications    Certification[]
+  skills            Skill[]
+  experience        Experience[]
+  safetyRecords     SafetyRecord[]
+  
+  // Relationships
+  jobApplications   JobApplication[]
+  postedJobs        Job[] @relation("JobPoster")
+  assignedJobs      Job[] @relation("AssignedWorker")
+  messages          Message[]
+  notifications     Notification[]
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastLoginAt       DateTime?
+  
+  @@map("users")
+}
+
+model Job {
+  id                String   @id @default(cuid())
+  title             String
+  description       String
+  requirements      String[]
+  location          Json     // Address, coordinates, etc.
+  
+  // Job details
+  jobType           JobType
+  urgencyLevel      UrgencyLevel @default(MEDIUM)
+  estimatedDuration String?  // e.g., "2 weeks", "3 months"
+  startDate         DateTime?
+  endDate           DateTime?
+  
+  // Compensation
+  payType           PayType
+  payAmount         Float?   // Per hour/day/project
+  currency          String   @default("AUD")
+  
+  // Safety & Requirements
+  safetyRequirements String[]
+  requiredSkills    Skill[]
+  requiredCertifications Certification[]
+  
+  // Status
+  status            JobStatus @default(OPEN)
+  maxApplicants     Int?     @default(50)
+  
+  // Relationships
+  poster            User     @relation("JobPoster", fields: [posterId], references: [id])
+  posterId          String
+  assignedWorker    User?    @relation("AssignedWorker", fields: [assignedWorkerId], references: [id])
+  assignedWorkerId  String?
+  applications      JobApplication[]
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  publishedAt       DateTime?
+  completedAt       DateTime?
+  
+  @@map("jobs")
+}
+
+model JobApplication {
+  id                String   @id @default(cuid())
+  
+  // Application details
+  coverLetter       String?
+  proposedRate      Float?
+  availability      String?  // When can start
+  
+  // Status
+  status            ApplicationStatus @default(PENDING)
+  
+  // Relationships
+  job               Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId             String
+  applicant         User     @relation(fields: [applicantId], references: [id], onDelete: Cascade)
+  applicantId       String
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  reviewedAt        DateTime?
+  
+  @@unique([jobId, applicantId])
+  @@map("job_applications")
+}
+
+model Skill {
+  id                String   @id @default(cuid())
+  name              String   @unique
+  description       String?
+  category          SkillCategory
+  
+  // Verification
+  verificationRequired Boolean @default(false)
+  
+  // Relationships
+  users             User[]
+  jobs              Job[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("skills")
+}
+
+model Certification {
+  id                String   @id @default(cuid())
+  name              String
+  description       String?
+  issuingAuthority  String
+  validityPeriod    Int?     // Days
+  
+  // Relationships
+  users             User[]
+  jobs              Job[]
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("certifications")
+}
+
+model Experience {
+  id                String   @id @default(cuid())
+  jobTitle          String
+  company           String
+  description       String?
+  startDate         DateTime
+  endDate           DateTime?
+  location          String?
+  
+  // Verification
+  verified          Boolean  @default(false)
+  verificationDocument String?
+  
+  // Relationships
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("experiences")
+}
+
+model SafetyRecord {
+  id                String   @id @default(cuid())
+  incidentDate      DateTime
+  incidentType      SafetyIncidentType
+  description       String
+  severity          SafetySeverity
+  resolved          Boolean  @default(false)
+  
+  // Investigation
+  investigationNotes String?
+  correctiveActions String[]
+  
+  // Relationships
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("safety_records")
+}
+
+model Message {
+  id                String   @id @default(cuid())
+  content           String
+  messageType       MessageType @default(TEXT)
+  
+  // Relationships
+  sender            User     @relation(fields: [senderId], references: [id])
+  senderId          String
+  conversationId    String
+  
+  // Status
+  readAt            DateTime?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("messages")
+}
+
+model Notification {
+  id                String   @id @default(cuid())
+  title             String
+  message           String
+  type              NotificationType
+  
+  // Relationships
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  
+  // Status
+  read              Boolean  @default(false)
+  readAt            DateTime?
+  
+  // Action
+  actionUrl         String?
+  actionData        Json?
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("notifications")
+}
+
+// Enums
+enum UserRole {
+  ADMIN
+  WORKER
+  EMPLOYER
+  SAFETY_OFFICER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+enum JobType {
+  CRANE_OPERATION
+  RIGGING
+  SCAFFOLDING
+  HEAVY_LIFTING
+  CONSTRUCTION
+  MAINTENANCE
+  INSPECTION
+  TRAINING
+  OTHER
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum PayType {
+  HOURLY
+  DAILY
+  PROJECT
+  WEEKLY
+  MONTHLY
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  ON_HOLD
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWED
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum SkillCategory {
+  CRANE_OPERATIONS
+  RIGGING_TECHNIQUES
+  SAFETY_PROTOCOLS
+  EQUIPMENT_MAINTENANCE
+  TECHNICAL_SKILLS
+  SOFT_SKILLS
+  CERTIFICATIONS
+}
+
+enum SafetyIncidentType {
+  NEAR_MISS
+  MINOR_INJURY
+  MAJOR_INJURY
+  EQUIPMENT_DAMAGE
+  SAFETY_VIOLATION
+  OTHER
+}
+
+enum SafetySeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum MessageType {
+  TEXT
+  FILE
+  IMAGE
+  SYSTEM
+}
+
+enum NotificationType {
+  JOB_ALERT
+  APPLICATION_UPDATE
+  MESSAGE_RECEIVED
+  SAFETY_ALERT
+  SYSTEM_NOTIFICATION
+  PAYMENT_UPDATE
+}

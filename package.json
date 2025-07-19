@@ -1,0 +1,59 @@
+{
+  "name": "@tiation/rigger-platform",
+  "version": "1.0.0",
+  "description": "Enterprise workforce management & job marketplace platform for riggers and construction workers",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean",
+    "setup": "npm install && npm run build",
+    "start": "turbo run start",
+    "deploy:staging": "turbo run deploy --filter=staging",
+    "deploy:prod": "turbo run deploy --filter=production",
+    "deploy:mobile": "turbo run deploy --filter=mobile",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up -d",
+    "docker:prod": "docker-compose up -d",
+    "db:migrate": "turbo run db:migrate --filter=api",
+    "db:seed": "turbo run db:seed --filter=api",
+    "generate": "turbo run generate"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@turbo/gen": "^1.12.4",
+    "turbo": "^1.12.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tiaastor/tiation-rigger-platform"
+  },
+  "keywords": [
+    "workforce-management",
+    "construction",
+    "riggers",
+    "job-marketplace",
+    "safety-compliance",
+    "react-native",
+    "nextjs",
+    "typescript",
+    "enterprise"
+  ],
+  "author": "Tiation <contact@tiation.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tiaastor/tiation-rigger-platform/issues"
+  },
+  "homepage": "https://github.com/tiaastor/tiation-rigger-platform#readme"
+}
