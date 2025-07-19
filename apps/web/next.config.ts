@@ -48,13 +48,8 @@ const nextConfig: NextConfig = {
     return config;
   },
 
-  // Output configuration
-  output: 'export',
-  trailingSlash: true,
-  
-  // Configure for GitHub Pages
-  basePath: process.env.NODE_ENV === 'production' ? '/tiation-rigger-platform' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/tiation-rigger-platform/' : '',
+  // Output configuration for Cloud Run (standalone)
+  output: 'standalone',
   
   // Enable source maps in production for better debugging
   productionBrowserSourceMaps: true,

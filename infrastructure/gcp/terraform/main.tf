@@ -1,5 +1,5 @@
-# Google Cloud Platform Terraform Configuration for Rigger Platform
-# This creates all necessary GCP resources for the application
+# Google Cloud Platform Basic Terraform Configuration for Rigger Platform
+# Basic deployment without SQL initially
 
 terraform {
   required_version = ">= 1.0"
@@ -11,7 +11,7 @@ terraform {
   }
   
   backend "gcs" {
-    bucket = "rigger-platform-terraform-state"
+    bucket = "tiation-enterprise-rigger-platform-terraform-state"
     prefix = "terraform/state"
   }
 }
@@ -44,7 +44,7 @@ variable "zone" {
 variable "domain" {
   description = "The domain name for the application"
   type        = string
-  default     = "rigger-platform.com"
+  default     = ""
 }
 
 variable "environment" {
@@ -53,11 +53,10 @@ variable "environment" {
   default     = "production"
 }
 
-# Enable required APIs
+# Enable required APIs (excluding SQL for now)
 resource "google_project_service" "apis" {
   for_each = toset([
     "run.googleapis.com",
-    "sql.googleapis.com",
     "cloudbuild.googleapis.com",
     "secretmanager.googleapis.com",
     "cloudresourcemanager.googleapis.com",
@@ -101,86 +100,6 @@ resource "google_vpc_access_connector" "rigger_connector" {
   project       = var.project_id
   
   depends_on = [google_project_service.apis]
-}
-
-# Cloud SQL PostgreSQL instance
-resource "google_sql_database_instance" "rigger_db" {
-  name             = "rigger-platform-db"
-  database_version = "POSTGRES_15"
-  region           = var.region
-  project          = var.project_id
-  
-  deletion_protection = true
-  
-  settings {
-    tier                        = "db-f1-micro"
-    availability_type          = "ZONAL"
-    disk_type                  = "PD_SSD"
-    disk_size                  = 20
-    disk_autoresize           = true
-    disk_autoresize_limit     = 100
-    
-    backup_configuration {
-      enabled                        = true
-      start_time                    = "03:00"
-      point_in_time_recovery_enabled = true
-      backup_retention_settings {
-        retained_backups = 7
-        retention_unit   = "COUNT"
-      }
-    }
-    
-    ip_configuration {
-      ipv4_enabled    = false
-      private_network = google_compute_network.rigger_network.id
-      require_ssl     = true
-    }
-    
-    database_flags {
-      name  = "log_statement"
-      value = "all"
-    }
-  }
-  
-  depends_on = [
-    google_project_service.apis,
-    google_service_networking_connection.private_vpc_connection
-  ]
-}
-
-# Private service connection for Cloud SQL
-resource "google_compute_global_address" "private_ip_address" {
-  name          = "private-ip-address"
-  purpose       = "VPC_PEERING"
-  address_type  = "INTERNAL"
-  prefix_length = 16
-  network       = google_compute_network.rigger_network.id
-  project       = var.project_id
-}
-
-resource "google_service_networking_connection" "private_vpc_connection" {
-  network                 = google_compute_network.rigger_network.id
-  service                 = "servicenetworking.googleapis.com"
-  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-}
-
-# Database and user
-resource "google_sql_database" "rigger_database" {
-  name     = "rigger_platform"
-  instance = google_sql_database_instance.rigger_db.name
-  project  = var.project_id
-}
-
-resource "google_sql_user" "rigger_user" {
-  name     = "rigger_user"
-  instance = google_sql_database_instance.rigger_db.name
-  password = random_password.db_password.result
-  project  = var.project_id
-}
-
-resource "random_password" "db_password" {
-  length  = 32
-  special = true
 }
 
 # Redis instance for caching
@@ -244,20 +163,6 @@ resource "random_password" "jwt_secret" {
   special = true
 }
 
-resource "google_secret_manager_secret" "db_password_secret" {
-  secret_id = "database-password"
-  project   = var.project_id
-  
-  replication {
-    auto {}
-  }
-}
-
-resource "google_secret_manager_secret_version" "db_password_secret" {
-  secret      = google_secret_manager_secret.db_password_secret.id
-  secret_data = google_sql_user.rigger_user.password
-}
-
 # Cloud Run API Service
 resource "google_cloud_run_v2_service" "rigger_api" {
   name     = "rigger-platform-api"
@@ -292,11 +197,6 @@ resource "google_cloud_run_v2_service" "rigger_api" {
       env {
         name  = "NODE_ENV"
         value = "production"
-      }
-      
-      env {
-        name  = "DATABASE_URL"
-        value = "postgresql://${google_sql_user.rigger_user.name}:${google_sql_user.rigger_user.password}@${google_sql_database_instance.rigger_db.private_ip_address}:5432/${google_sql_database.rigger_database.name}"
       }
       
       env {
@@ -384,12 +284,6 @@ output "api_url" {
 output "web_url" {
   description = "URL of the web service"
   value       = google_cloud_run_v2_service.rigger_web.uri
-}
-
-output "database_connection" {
-  description = "Database connection string"
-  value       = "postgresql://${google_sql_user.rigger_user.name}:${google_sql_user.rigger_user.password}@${google_sql_database_instance.rigger_db.private_ip_address}:5432/${google_sql_database.rigger_database.name}"
-  sensitive   = true
 }
 
 output "redis_url" {

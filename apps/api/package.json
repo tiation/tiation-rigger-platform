@@ -2,11 +2,11 @@
   "name": "@tiation/rigger-platform-api",
   "version": "1.0.0",
   "description": "Enterprise API service for Rigger Platform workforce management",
-  "main": "dist/server.js",
+  "main": "app.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "node app.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
