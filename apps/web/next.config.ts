@@ -22,14 +22,9 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Image optimization
+  // Image optimization (disabled for static export)
   images: {
-    domains: [
-      'localhost',
-      'rigger-platform.tiation.com',
-      'api.rigger-platform.tiation.com',
-    ],
-    formats: ['image/avif', 'image/webp'],
+    unoptimized: true,
   },
 
   // Environment variables that should be available on the client side
@@ -40,43 +35,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_VERSION: '1.0.0',
   },
 
-  // Redirects
-  async redirects() {
-    return [
-      {
-        source: '/dashboard',
-        destination: '/',
-        permanent: true,
-      },
-    ];
-  },
-
-  // Headers for security
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=(self)',
-          },
-        ],
-      },
-    ];
-  },
+  // Note: redirects and headers are not supported with static export
 
   // Webpack configuration
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
@@ -90,7 +49,12 @@ const nextConfig: NextConfig = {
   },
 
   // Output configuration
-  output: 'standalone',
+  output: 'export',
+  trailingSlash: true,
+  
+  // Configure for GitHub Pages
+  basePath: process.env.NODE_ENV === 'production' ? '/tiation-rigger-platform' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/tiation-rigger-platform/' : '',
   
   // Enable source maps in production for better debugging
   productionBrowserSourceMaps: true,

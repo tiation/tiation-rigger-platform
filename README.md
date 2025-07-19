@@ -2,6 +2,10 @@
 
 Enterprise-grade platform for construction and mining industry recruitment in Western Australia. Features dark neon theme with mobile-first design.
 
+## 🌐 Live Sites
+- **Platform Demo**: [Visit Live Demo](https://tiation.github.io/tiation-rigger-platform)
+- **Developer Profile**: [View Profile](https://tiation.github.io/tiation-rigger-platform/profile)
+
 ## 🏗️ Enterprise Workforce Management & Job Marketplace
 
 A comprehensive platform connecting riggers and construction workers with projects while ensuring safety and compliance.
@@ -186,7 +190,3 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 - `riggerhireapp`
 
 **Migration Progress**: 🚧 In Progress - Setting up unified platform structure
-=======
-# tiation-rigger-platform
-Enterprise-grade platform for construction and mining industry recruitment in Western Australia. Features dark neon theme with mobile-first design.
->>>>>>> 8637606ae6159434c8749a2114959ba818a0d86e
