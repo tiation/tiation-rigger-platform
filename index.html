@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rigger Platform - Enterprise Construction & Mining Recruitment</title>
+    <style>
+        :root {
+            --neon-cyan: #00fff2;
+            --neon-magenta: #ff00ff;
+            --dark-bg: #0a0a0a;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--dark-bg);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+            background: linear-gradient(rgba(10,10,10,0.9), rgba(10,10,10,0.9)),
+                        linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            background-blend-mode: overlay;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            margin: 1rem 0;
+            background: linear-gradient(45deg, var(--neon-cyan), var(--neon-magenta));
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .pricing {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 4rem 0;
+        }
+
+        .price-card {
+            background: rgba(255,255,255,0.05);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid var(--neon-cyan);
+        }
+
+        .features {
+            padding: 4rem 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .pricing {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="container">
+            <h1 class="gradient-bg">Rigger Platform</h1>
+            <p>Enterprise-Grade Construction & Mining Recruitment Solution for Western Australia</p>
+            <a href="#pricing" class="cta-button">Get Started</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <section class="features">
+            <h2 class="gradient-bg">Enterprise Features</h2>
+            <div class="feature-grid">
+                <div>
+                    <h3>Automated Matching</h3>
+                    <p>AI-powered matching of qualified riggers with construction projects</p>
+                </div>
+                <div>
+                    <h3>Safety Compliance</h3>
+                    <p>Built-in WA safety standards and certification tracking</p>
+                </div>
+                <div>
+                    <h3>Real-time Updates</h3>
+                    <p>Instant notifications and project status tracking</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="pricing">
+            <div class="price-card">
+                <h3>Starter</h3>
+                <p class="gradient-bg">$499/month</p>
+                <ul style="list-style: none; padding: 0;">
+                    <li>Up to 10 job postings</li>
+                    <li>Basic matching algorithm</li>
+                    <li>Email support</li>
+                </ul>
+                <a href="https://stripe.com" class="cta-button">Subscribe Now</a>
+            </div>
+            <div class="price-card">
+                <h3>Professional</h3>
+                <p class="gradient-bg">$999/month</p>
+                <ul style="list-style: none; padding: 0;">
+                    <li>Unlimited job postings</li>
+                    <li>Advanced AI matching</li>
+                    <li>24/7 priority support</li>
+                </ul>
+                <a href="https://stripe.com" class="cta-button">Subscribe Now</a>
+            </div>
+            <div class="price-card">
+                <h3>Enterprise</h3>
+                <p class="gradient-bg">Custom Pricing</p>
+                <ul style="list-style: none; padding: 0;">
+                    <li>Custom features</li>
+                    <li>Dedicated support team</li>
+                    <li>API access</li>
+                </ul>
+                <a href="mailto:tiatheone@protonmail.com" class="cta-button">Contact Us</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
